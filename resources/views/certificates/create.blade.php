@@ -9,6 +9,7 @@
     <style>
         body { background-color: #f8f9fa; }
         .form-card { border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn-vettix { background-color: #00c2cb; color: white; border: none; }
         .btn-vettix:hover { background-color: #00a8af; color: white; }
     </style>
 </head>
@@ -78,11 +79,7 @@
                             </small>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">File Path (Opsional)</label>
-                            <input type="text" name="file_path" class="form-control" placeholder="Contoh: /storage/certificates/cert-001.pdf">
-                            <small class="text-muted">Link file PDF sertifikat (jika sudah ada)</small>
-                        </div>
+
 
                         <div class="alert alert-info">
                             <small>

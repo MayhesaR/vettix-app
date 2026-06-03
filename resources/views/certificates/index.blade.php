@@ -78,8 +78,13 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ url('certificates/'.$c->id.'/edit') }}" class="btn btn-sm btn-warning">Edit</a>
-                                <form action="{{ url('certificates/'.$c->id) }}" method="POST" class="d-inline">
+                                @if($c->file_path)
+                                    <a href="{{ asset($c->file_path) }}" class="btn btn-sm btn-info text-white" target="_blank" onclick="event.stopPropagation();" title="Download PDF">
+                                        <i class="fa-solid fa-file-pdf"></i> PDF
+                                    </a>
+                                @endif
+                                <a href="{{ url('certificates/'.$c->id.'/edit') }}" class="btn btn-sm btn-warning" onclick="event.stopPropagation();">Edit</a>
+                                <form action="{{ url('certificates/'.$c->id) }}" method="POST" class="d-inline" onclick="event.stopPropagation();">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus?')">Hapus</button>
@@ -137,7 +142,9 @@
                         </div>
                     </div>
                 </div>
-                <button class="btn btn-primary w-100 mt-3">Download PDF</button>
+                <a id="btn-download-pdf" href="@if($certificates->isNotEmpty()){{ asset($certificates->first()->file_path) }}@else#@endif" class="btn btn-primary w-100 mt-3" target="_blank" style="background-color: #00c2cb; border-color: #00c2cb; @if($certificates->isEmpty()) display: none; @endif">
+                    <i class="fa-solid fa-file-pdf me-2"></i>Download PDF
+                </a>
             </div>
         </div>
     </div>
@@ -156,7 +163,8 @@ document.addEventListener('DOMContentLoaded', function() {
             no_sertifikat: '{{ $c->no_sertifikat }}',
             nama_peserta: '{{ $c->participant->nama_peserta ?? 'N/A' }}',
             nama_event: '{{ $c->event->nama_event ?? 'N/A' }}',
-            qr_code_url: '{{ $c->qr_code_url ?? '' }}'
+            qr_code_url: '{{ $c->qr_code_url ?? '' }}',
+            file_path: '{{ asset($c->file_path) }}'
         },
         @endforeach
     ];
@@ -186,12 +194,43 @@ document.addEventListener('DOMContentLoaded', function() {
                     qrContainer.innerHTML = 'QR';
                 }
 
+                const downloadBtn = document.getElementById('btn-download-pdf');
+                if (cert.file_path) {
+                    downloadBtn.href = cert.file_path;
+                    downloadBtn.style.display = 'block';
+                } else {
+                    downloadBtn.style.display = 'none';
+                }
+
                 const previewBox = document.getElementById('certificatePreview');
                 previewBox.style.transform = 'scale(1.02)';
                 previewBox.style.transition = 'all 0.3s ease';
                 setTimeout(() => {
                     previewBox.style.transform = 'scale(1)';
                 }, 300);
+            }
+        } else {
+            // Revert preview to the first certificate if any
+            if (certificatesData.length > 0) {
+                const cert = certificatesData[0];
+                document.getElementById('cert-number').textContent = cert.no_sertifikat;
+                document.getElementById('preview-name').textContent = cert.nama_peserta;
+                document.getElementById('preview-event').textContent = cert.nama_event;
+
+                const qrContainer = document.getElementById('preview-qr');
+                if (cert.qr_code_url) {
+                    qrContainer.innerHTML = `<img src="${cert.qr_code_url}" alt="QR" style="width: 100%; height: 100%;">`;
+                } else {
+                    qrContainer.innerHTML = 'QR';
+                }
+
+                const downloadBtn = document.getElementById('btn-download-pdf');
+                if (cert.file_path) {
+                    downloadBtn.href = cert.file_path;
+                    downloadBtn.style.display = 'block';
+                } else {
+                    downloadBtn.style.display = 'none';
+                }
             }
         }
     });

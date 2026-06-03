@@ -15,6 +15,33 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (auth()->user()->role === 'peserta') {
+            $email = auth()->user()->email;
+            
+            $myRegistrations = Participant::where('email', $email)
+                ->with(['event.venue', 'event.category', 'certificate'])
+                ->get();
+                
+            $myCertificates = Certificate::whereHas('participant', function ($q) use ($email) {
+                $q->where('email', $email);
+            })->with('event')->get();
+
+            $stats = [
+                'my_events' => $myRegistrations->count(),
+                'my_certificates' => $myCertificates->count(),
+            ];
+
+            $registeredEventIds = $myRegistrations->pluck('event_id')->toArray();
+
+            $availableEvents = Event::whereNotIn('id', $registeredEventIds)
+                ->whereDate('tanggal_event', '>=', now()->toDateString())
+                ->with(['venue', 'category'])
+                ->orderBy('tanggal_event', 'asc')
+                ->get();
+
+            return view('dashboard', compact('stats', 'myRegistrations', 'availableEvents', 'myCertificates'));
+        }
+
         $stats = [
             'events' => Event::count(),
             'venues' => Venue::count(),

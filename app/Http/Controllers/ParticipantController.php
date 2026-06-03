@@ -86,4 +86,46 @@ class ParticipantController extends Controller
         Participant::findOrFail($id)->delete();
         return redirect()->back()->with('success', 'Peserta berhasil dihapus!');
     }
+
+    public function showSelfRegister($event_id)
+    {
+        $event = Event::with('venue')->findOrFail($event_id);
+        $user = auth()->user();
+        
+        // Find if they have any previous participant record to prefill NIM and Asal Instansi
+        $previousRecord = Participant::where('email', $user->email)->orderBy('created_at', 'desc')->first();
+        $prefilledNim = $previousRecord ? $previousRecord->nim : '';
+        $prefilledInstansi = $previousRecord ? $previousRecord->asal_instansi : '';
+        
+        return view('participants.self_register', compact('event', 'user', 'prefilledNim', 'prefilledInstansi'));
+    }
+
+    public function selfRegister(Request $request, $event_id)
+    {
+        $user = auth()->user();
+        
+        // Check if already registered for this event
+        $alreadyRegistered = Participant::where('email', $user->email)->where('event_id', $event_id)->exists();
+        if ($alreadyRegistered) {
+            return redirect()->route('dashboard')->with('error', 'Anda sudah terdaftar di event ini!');
+        }
+
+        $request->validate([
+            'nim' => 'required|string|unique:participants,nim|max:255',
+            'asal_instansi' => 'required|string|max:255',
+        ], [
+            'nim.unique' => 'NIM ini sudah digunakan oleh peserta lain!',
+        ]);
+
+        Participant::create([
+            'nama_peserta' => $user->name,
+            'nim' => $request->nim,
+            'email' => $user->email,
+            'asal_instansi' => $request->asal_instansi,
+            'status_kehadiran' => 'tidak_hadir',
+            'event_id' => $event_id,
+        ]);
+
+        return redirect()->route('dashboard')->with('success', 'Pendaftaran event berhasil! Status keikutsertaan Anda telah dicatat.');
+    }
 }

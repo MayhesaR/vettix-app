@@ -9,34 +9,42 @@ use App\Http\Controllers\SpeakerController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\RankingController;
+use App\Http\Controllers\AuthController;
 
-Route::get('/', function () {
-    return redirect()->route('dashboard');
+// Guest Auth Routes
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
 });
 
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/events', [DashboardController::class, 'index'])->name('events.index');
-Route::get('/venues', [DashboardController::class, 'index'])->name('venues.index');
-Route::get('/rankings', [DashboardController::class, 'index'])->name('rankings.index');
-Route::get('/certificates', [DashboardController::class, 'index'])->name('certificates.index');
-Route::get('/speakers', [DashboardController::class, 'index'])->name('speakers.index');
-Route::get('/reviews', [DashboardController::class, 'index'])->name('reviews.index');
+// Authenticated Routes
+Route::middleware('auth')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    Route::get('/settings', [AuthController::class, 'showSettings'])->name('settings');
+    Route::post('/settings', [AuthController::class, 'updateSettings'])->name('settings.update');
 
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
 
-Route::resource('events', EventController::class);
-Route::resource('venues', VenueController::class);
-Route::get('/venues', [VenueController::class, 'index'])->name('venues.index');
-Route::post('/venues', [VenueController::class, 'store'])->name('venues.store');
-Route::delete('/venues/{id}', [VenueController::class, 'destroy'])->name('venues.destroy');
-Route::resource('participants', ParticipantController::class);
-Route::resource('certificates', CertificateController::class);
-Route::resource('rankings', RankingController::class);
-Route::resource('speakers', SpeakerController::class);
-Route::get('/github/{username}', [SpeakerController::class, 'fetchGithub']);
-Route::get('/devto/{username}', [SpeakerController::class, 'fetchDevto']);
-Route::resource('reviews', ReviewController::class);
-Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
-Route::patch('/reviews/{id}/toggle', [ReviewController::class, 'toggleStatus'])->name('reviews.toggle');
-Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
-
-
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/register-event/{event_id}', [ParticipantController::class, 'showSelfRegister'])->name('participants.self-register.form');
+    Route::post('/register-event/{event_id}', [ParticipantController::class, 'selfRegister'])->name('participants.self-register');
+    
+    Route::resource('events', EventController::class);
+    Route::resource('venues', VenueController::class);
+    
+    Route::resource('participants', ParticipantController::class);
+    Route::resource('certificates', CertificateController::class);
+    Route::resource('rankings', RankingController::class);
+    Route::resource('speakers', SpeakerController::class);
+    
+    Route::get('/github/{username}', [SpeakerController::class, 'fetchGithub']);
+    Route::get('/devto/{username}', [SpeakerController::class, 'fetchDevto']);
+    
+    Route::resource('reviews', ReviewController::class);
+    Route::patch('/reviews/{id}/toggle', [ReviewController::class, 'toggleStatus'])->name('reviews.toggle');
+});
