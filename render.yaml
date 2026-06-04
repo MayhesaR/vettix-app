@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: tugas-besar-wad-app
+    name: vettix-app
     runtime: docker
     plan: free
     envVars:
@@ -14,13 +14,13 @@ services:
         value: pgsql
       - key: DATABASE_URL
         fromDatabase:
-          name: tugas-besar-wad-db
+          name: vettix-db
           property: connectionString
       - key: APP_KEY
         sync: false # You will be prompted to enter this in the Render dashboard during setup
 
 databases:
-  - name: tugas-besar-wad-db
-    databaseName: tugasbesar_db
+  - name: vettix-db
+    databaseName: vettix_db
     user: wad_user
     plan: free
