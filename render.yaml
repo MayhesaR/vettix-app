@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: vettix-app
+    name: vettix-app-id
     runtime: docker
     plan: free
     envVars:
