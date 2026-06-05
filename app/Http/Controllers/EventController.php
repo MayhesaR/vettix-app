@@ -69,15 +69,31 @@ class EventController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $rules = [
             'nama_event'    => 'required|string|max:255',
-            'category_id'   => 'required|exists:categories,id',
             'venue_id'      => 'required|exists:venues,id',
             'tanggal_event' => 'required|date',
-            'deskripsi'     => 'nullable|string',
+            'deskripsi'     => 'required|string',
+        ];
+
+        if ($request->category_id === 'new') {
+            $rules['new_category'] = 'required|string|max:255|unique:categories,nama_kategori';
+        } else {
+            $rules['category_id'] = 'required|exists:categories,id';
+        }
+
+        $request->validate($rules, [
+            'nama_event.required'    => 'Nama event wajib diisi.',
+            'category_id.required'   => 'Kategori wajib dipilih.',
+            'new_category.required'  => 'Nama kategori baru wajib diisi.',
+            'new_category.unique'    => 'Kategori tersebut sudah ada.',
+            'venue_id.required'      => 'Lokasi (Venue) wajib dipilih.',
+            'venue_id.exists'        => 'Lokasi yang dipilih tidak valid.',
+            'tanggal_event.required' => 'Tanggal pelaksanaan event wajib diisi.',
+            'tanggal_event.date'     => 'Format tanggal tidak valid.',
+            'deskripsi.required'     => 'Deskripsi event wajib diisi.',
         ]);
 
-        $year = date('Y', strtotime($request->tanggal_event));
         $dateInput = $request->tanggal_event;
 
         try {
@@ -95,22 +111,37 @@ class EventController extends Controller
                     ]);
                 }
             }
-        }catch (\Exception $e) {
+        } catch (\Exception $e) {
             if ($e instanceof ValidationException) {
                 throw $e;
             }
         }
 
-        Event::create([
-            'nama_event'    => $request->nama_event,
-            'category_id'   => $request->category_id,
-            'venue_id'      => $request->venue_id,
-            'tanggal_event' => $request->tanggal_event,
-            'deskripsi'     => $request->deskripsi,
-            'user_id'       => Auth::id() ?? 1,
-        ]);
-    return redirect()->route('events.index')->with('success', 'Event berhasil disimpan!');
-}
+        try {
+            $categoryId = $request->category_id;
+            if ($request->category_id === 'new') {
+                $category = Category::create([
+                    'nama_kategori' => $request->new_category,
+                ]);
+                $categoryId = $category->id;
+            }
+
+            Event::create([
+                'nama_event'    => $request->nama_event,
+                'category_id'   => $categoryId,
+                'venue_id'      => $request->venue_id,
+                'tanggal_event' => $request->tanggal_event,
+                'deskripsi'     => $request->deskripsi,
+                'user_id'       => Auth::id() ?? 1,
+            ]);
+
+            return redirect()->route('events.index')->with('success', 'Event berhasil disimpan!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan event! Alasan: ' . $e->getMessage());
+        }
+    }
 
     public function edit(Event $event)
     {
@@ -122,11 +153,29 @@ class EventController extends Controller
 
     public function update(Request $request, Event $event)
     {
-        $request->validate([
+        $rules = [
             'nama_event'    => 'required|string|max:255',
-            'category_id'   => 'required',
-            'venue_id'      => 'required',
+            'venue_id'      => 'required|exists:venues,id',
             'tanggal_event' => 'required|date',
+            'deskripsi'     => 'required|string',
+        ];
+
+        if ($request->category_id === 'new') {
+            $rules['new_category'] = 'required|string|max:255|unique:categories,nama_kategori';
+        } else {
+            $rules['category_id'] = 'required|exists:categories,id';
+        }
+
+        $request->validate($rules, [
+            'nama_event.required'    => 'Nama event wajib diisi.',
+            'category_id.required'   => 'Kategori wajib dipilih.',
+            'new_category.required'  => 'Nama kategori baru wajib diisi.',
+            'new_category.unique'    => 'Kategori tersebut sudah ada.',
+            'venue_id.required'      => 'Lokasi (Venue) wajib dipilih.',
+            'venue_id.exists'        => 'Lokasi yang dipilih tidak valid.',
+            'tanggal_event.required' => 'Tanggal pelaksanaan event wajib diisi.',
+            'tanggal_event.date'     => 'Format tanggal tidak valid.',
+            'deskripsi.required'     => 'Deskripsi event wajib diisi.',
         ]);
 
         if ($request->tanggal_event != $event->tanggal_event) {
@@ -136,20 +185,43 @@ class EventController extends Controller
                 if ($response->successful()) {
                     $holidays = $response->json();
                     if (isset($holidays[$dateInput])) {
-                        $namaLibur = $holidays[$dateInput]['summary'];
+                        $rawSummary = $holidays[$dateInput]['summary'];
+                        $namaLibur = is_array($rawSummary) ? $rawSummary[0] : $rawSummary;
                         throw ValidationException::withMessages([
                             'tanggal_event' => "Gagal update! Tanggal $dateInput adalah hari libur: $namaLibur."
                         ]);
                     }
                 }
             } catch (\Exception $e) {
-                if ($e instanceof ValidationException) throw $e;
+                if ($e instanceof ValidationException) {
+                    throw $e;
+                }
             }
         }
 
-        $event->update($request->all());
+        try {
+            $categoryId = $request->category_id;
+            if ($request->category_id === 'new') {
+                $category = Category::create([
+                    'nama_kategori' => $request->new_category,
+                ]);
+                $categoryId = $category->id;
+            }
 
-        return redirect()->route('events.index')->with('success', 'Event berhasil diperbarui!');
+            $event->update([
+                'nama_event'    => $request->nama_event,
+                'category_id'   => $categoryId,
+                'venue_id'      => $request->venue_id,
+                'tanggal_event' => $request->tanggal_event,
+                'deskripsi'     => $request->deskripsi,
+            ]);
+
+            return redirect()->route('events.index')->with('success', 'Event berhasil diperbarui!');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal memperbarui event! Alasan: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Event $event)

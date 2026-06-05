@@ -9,6 +9,10 @@ echo "Starting post-deployment tasks..."
 echo "Running migrations..."
 php artisan migrate --force
 
+# Run database seeders (safely guarded against rewriting existing data)
+echo "Running database seeders..."
+php artisan db:seed --force
+
 # Cache configuration, routes, and views for optimal performance
 echo "Caching configurations..."
 php artisan config:cache
