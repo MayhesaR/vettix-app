@@ -21,6 +21,14 @@
     <div class="card border-0 shadow-sm rounded-3">
         <div class="card-body p-4">
 
+            @if ($message = Session::get('error'))
+                <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert" style="background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca;">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i>
+                    <strong>Gagal!</strong> {{ $message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            @endif
+
             <form action="{{ route('events.store') }}" method="POST">
                 @csrf
 
@@ -117,15 +125,15 @@
                     <div class="col-md-8">
                         <label class="form-label fw-bold small">Waktu Event</label>
                         <div class="input-group">
-                            <input type="text" name="waktu" class="form-control" placeholder="--:--" value="{{ old('waktu') }}">
+                            <input type="text" name="waktu" class="form-control" placeholder="Contoh: 09:00 - 11:30 WIB" value="{{ old('waktu') }}">
                             <span class="input-group-text bg-white"><i class="fa-regular fa-clock"></i></span>
                         </div>
-                        <div class="form-text text-muted small">Waktu mulai pelaksanaan event (Format bebas).</div>
+                        <div class="form-text text-muted small">Format pengisian waktu bebas (Contoh: 09:00 - 11:30 WIB atau 13:00 selesai).</div>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-bold small">Durasi (jam)</label>
-                        <input type="number" name="durasi" class="form-control" placeholder="" value="{{ old('durasi') }}">
-                        <div class="form-text text-muted small">Estimasi durasi dalam satuan jam.</div>
+                        <input type="number" name="durasi" class="form-control" placeholder="Contoh: 2" value="{{ old('durasi') }}">
+                        <div class="form-text text-muted small">Estimasi durasi acara dalam satuan jam (Contoh: 2).</div>
                     </div>
                 </div>
 
