@@ -26,7 +26,6 @@ class EventSeeder extends Seeder
         $tult = Venue::where('nama_venue', 'Ruang Seminar TULT')->first();
 
         Event::create([
-            'id' => 1,
             'nama_event' => 'Seminar Teknologi AI & Machine Learning',
             'deskripsi' => 'Seminar nasional membahas perkembangan terkini AI dan Machine Learning dalam industri',
             'tanggal_event' => Carbon::now()->subDays(15)->format('Y-m-d'),
@@ -36,7 +35,6 @@ class EventSeeder extends Seeder
         ]);
 
         Event::create([
-            'id' => 2,
             'nama_event' => 'Workshop Web Development dengan Laravel',
             'deskripsi' => 'Pelatihan intensif pembuatan aplikasi web menggunakan framework Laravel',
             'tanggal_event' => Carbon::now()->subDays(7)->format('Y-m-d'),
@@ -46,7 +44,6 @@ class EventSeeder extends Seeder
         ]);
 
         Event::create([
-            'id' => 3,
             'nama_event' => 'Kompetisi Hackathon 2025',
             'deskripsi' => 'Lomba pemrograman tingkat nasional dengan tema Smart City Solutions',
             'tanggal_event' => Carbon::now()->subDays(3)->format('Y-m-d'),
@@ -56,7 +53,6 @@ class EventSeeder extends Seeder
         ]);
 
         Event::create([
-            'id' => 4,
             'nama_event' => 'Konferensi Cyber Security Indonesia',
             'deskripsi' => 'Konferensi internasional membahas keamanan siber dan data protection',
             'tanggal_event' => Carbon::now()->addDays(10)->format('Y-m-d'),
