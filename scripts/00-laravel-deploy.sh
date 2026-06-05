@@ -5,13 +5,18 @@ set -e
 
 echo "Starting post-deployment tasks..."
 
-# Run database migrations
-echo "Running migrations..."
-php artisan migrate --force
+if [ "$DB_FRESH_SEED" = "true" ]; then
+    echo "DB_FRESH_SEED is set to true. Running fresh migrations and seeding..."
+    php artisan migrate:fresh --force
+    php artisan db:seed --force
+else
+    echo "Running standard migrations..."
+    php artisan migrate --force
 
-# Run database seeders (safely guarded against rewriting existing data)
-echo "Running database seeders..."
-php artisan db:seed --force
+    # Safe seeding (DatabaseSeeder will skip if users already exist)
+    echo "Running database seeders..."
+    php artisan db:seed --force
+fi
 
 # Cache configuration, routes, and views for optimal performance
 echo "Caching configurations..."
