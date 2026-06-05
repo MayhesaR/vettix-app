@@ -151,9 +151,9 @@
                 </div>
             </div>
 
-            <button class="btn fw-bold px-3 py-2 shadow-sm" style="background-color: #86efac; color: #14532d; border: none; font-size: 0.9rem;">
+            <a href="{{ route('events.export.pdf', ['month' => request('month')]) }}" class="btn fw-bold px-3 py-2 shadow-sm text-decoration-none" style="background-color: #86efac; color: #14532d; border: none; font-size: 0.9rem;">
                 <i class="fa-solid fa-file-arrow-down me-2"></i> Export Jadwal
-            </button>
+            </a>
         </div>
 
     </div>

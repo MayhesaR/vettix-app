@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Http\Resources\EventResource;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\ValidationException;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class EventController extends Controller
 {
@@ -229,5 +230,30 @@ class EventController extends Controller
         $event->delete();
         return redirect()->route('events.index')
             ->with('success', 'Event berhasil dihapus.');
+    }
+
+    public function exportPdf(Request $request)
+    {
+        try {
+            $date = $request->has('month')
+                ? Carbon::createFromFormat('Y-m', $request->month)
+                : Carbon::now();
+        } catch (\Exception $e) {
+            $date = Carbon::now();
+        }
+
+        $currentMonthName = $date->format('F Y');
+
+        $startOfMonth = $date->copy()->startOfMonth();
+        $endOfMonth = $date->copy()->endOfMonth();
+
+        $events = Event::with(['category', 'venue'])
+            ->whereBetween('tanggal_event', [$startOfMonth, $endOfMonth])
+            ->orderBy('tanggal_event', 'asc')
+            ->get();
+
+        $pdf = Pdf::loadView('events.pdf_export', compact('events', 'currentMonthName'));
+
+        return $pdf->download('Jadwal_Event_' . str_replace(' ', '_', $currentMonthName) . '.pdf');
     }
 }

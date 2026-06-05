@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/register-event/{event_id}', [ParticipantController::class, 'showSelfRegister'])->name('participants.self-register.form');
     Route::post('/register-event/{event_id}', [ParticipantController::class, 'selfRegister'])->name('participants.self-register');
     
+    Route::get('/events/export/pdf', [EventController::class, 'exportPdf'])->name('events.export.pdf');
     Route::resource('events', EventController::class);
     Route::resource('venues', VenueController::class);
     
