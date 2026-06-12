@@ -38,7 +38,7 @@ class EventController extends Controller
                             return $item->tanggal_event;
                         });
 
-    $query = Event::with(['category', 'venue'])->latest();
+    $query = Event::with(['category', 'venue', 'user'])->latest();
 
     if ($request->has('category_id') && $request->category_id != '') {
         $query->where('category_id', $request->category_id);

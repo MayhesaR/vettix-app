@@ -2,8 +2,15 @@
 
 <head>
 <title>Vettix - Manajemen Event</title>
-
-
+<style>
+    .hover-underline-primary {
+        transition: color 0.15s ease-in-out;
+    }
+    .hover-underline-primary:hover {
+        color: #2563eb !important;
+        text-decoration: underline !important;
+    }
+</style>
 </head>
 @section('title')
 <div class="d-flex align-items-center mb-0">
@@ -220,7 +227,13 @@
                         {{-- LOOPING DATA DARI CONTROLLER --}}
                         @forelse($events as $event)
                             <tr>
-                                <td class="ps-4 fw-bold text-dark">{{ $event->nama_event }}</td>
+                                <td class="ps-4 fw-bold">
+                                    <a href="#" class="text-decoration-none text-dark hover-underline-primary" 
+                                       data-bs-toggle="modal" 
+                                       data-bs-target="#detailModal{{ $event->id }}">
+                                        {{ $event->nama_event }}
+                                    </a>
+                                </td>
                                 <td class="text-muted small">{{ \Carbon\Carbon::parse($event->tanggal_event)->format('M d, Y') }}</td>
                                 <td>{{ $event->category->nama_kategori ?? '-' }}</td>
                                 <td class="text-muted small">{{ $event->venue->nama_venue ?? '-' }}</td>
@@ -232,6 +245,14 @@
                                     @endif
                                 </td>
                                 <td class="text-end pe-4">
+                                    <button type="button"
+                                            class="btn btn-link p-0 me-2 text-info"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#detailModal{{ $event->id }}"
+                                            title="Lihat Detail">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+
                                     <a href="{{ route('events.edit', $event->id) }}" class="btn btn-link p-0 me-2 text-primary">
                                         <i class="fa-regular fa-pen-to-square"></i>
                                     </a>
@@ -267,6 +288,162 @@
         </div>
     </div>
 </div>
+
+@foreach($events as $event)
+    @php
+        $theme = match($event->category_id) {
+            1 => [
+                'bg' => 'linear-gradient(135deg, #ef4444, #f97316)',
+                'badge' => 'bg-danger text-white',
+                'icon' => 'fa-solid fa-graduation-cap',
+                'border' => '#ef4444'
+            ],
+            2 => [
+                'bg' => 'linear-gradient(135deg, #84cc16, #22c55e)',
+                'badge' => 'bg-success text-white',
+                'icon' => 'fa-solid fa-chalkboard-user',
+                'border' => '#84cc16'
+            ],
+            3 => [
+                'bg' => 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+                'badge' => 'bg-info text-white',
+                'icon' => 'fa-solid fa-trophy',
+                'border' => '#06b6d4'
+            ],
+            4 => [
+                'bg' => 'linear-gradient(135deg, #a855f7, #6366f1)',
+                'badge' => 'bg-primary text-white',
+                'icon' => 'fa-solid fa-users-line',
+                'border' => '#a855f7'
+            ],
+            default => [
+                'bg' => 'linear-gradient(135deg, #64748b, #475569)',
+                'badge' => 'bg-secondary text-white',
+                'icon' => 'fa-solid fa-calendar-days',
+                'border' => '#64748b'
+            ]
+        };
+    @endphp
+
+    <div class="modal fade" id="detailModal{{ $event->id }}" tabindex="-1" aria-labelledby="detailModalLabel{{ $event->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="modal-header border-0 text-white p-4" style="background: {{ $theme['bg'] }};">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-white bg-opacity-20 rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                            <i class="{{ $theme['icon'] }} fs-4 text-white"></i>
+                        </div>
+                        <div>
+                            <span class="badge {{ $theme['badge'] }} text-uppercase fs-xs mb-1 px-2.5 py-1 rounded-pill" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                                {{ $event->category->nama_kategori ?? '-' }}
+                            </span>
+                            <h4 class="modal-title fw-bold text-white mb-0" id="detailModalLabel{{ $event->id }}">{{ $event->nama_event }}</h4>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body p-4 bg-light bg-opacity-50">
+                    <div class="row g-4">
+                        <div class="col-md-5">
+                            <div class="card border-0 shadow-sm rounded-3 overflow-hidden h-100">
+                                @if($event->banner_img)
+                                    <img src="{{ asset('storage/' . $event->banner_img) }}" class="img-fluid w-100 h-100 object-cover" alt="Banner {{ $event->nama_event }}" style="min-height: 200px;">
+                                @else
+                                    <div class="w-100 h-100 d-flex flex-column align-items-center justify-content-center p-4 text-center" style="background: {{ $theme['bg'] }}; min-height: 250px; opacity: 0.95;">
+                                        <i class="{{ $theme['icon'] }} text-white opacity-40 mb-3" style="font-size: 4rem;"></i>
+                                        <span class="text-white fw-bold small text-uppercase" style="letter-spacing: 1px;">No Poster Available</span>
+                                        <span class="text-white text-opacity-75 small mt-1">Vettix Portal</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-md-7">
+                            <div class="card border-0 shadow-sm rounded-3 p-4 h-100">
+                                <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Informasi Utama</h6>
+                                
+                                <div class="mb-3 d-flex align-items-start">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                        <i class="fa-solid fa-calendar-day"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Tanggal Pelaksanaan</small>
+                                        <span class="fw-bold text-dark">{{ \Carbon\Carbon::parse($event->tanggal_event)->translatedFormat('l, d F Y') }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 d-flex align-items-start">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                        <i class="fa-solid fa-location-dot"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Lokasi (Venue)</small>
+                                        <span class="fw-bold text-dark">{{ $event->venue->nama_venue ?? '-' }}</span>
+                                        <span class="text-muted d-block small">{{ $event->venue->gedung ?? '-' }}</span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3 d-flex align-items-start">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                        <i class="fa-solid fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Kapasitas Maksimal</small>
+                                        <span class="fw-bold text-dark">{{ $event->venue->kapasitas ?? 0 }} Kursi / Peserta</span>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-start">
+                                    <div class="bg-primary bg-opacity-10 text-primary rounded-3 p-2 me-3 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                                        <i class="fa-solid fa-user-tie"></i>
+                                    </div>
+                                    <div>
+                                        <small class="text-muted d-block">Penyelenggara / Admin</small>
+                                        <span class="fw-bold text-dark">{{ $event->user->name ?? 'Administrator' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm rounded-3 p-4">
+                                <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Deskripsi Event</h6>
+                                <div class="text-dark small border-start ps-3 py-1" style="border-left: 3px solid {{ $theme['border'] }} !important; line-height: 1.6; text-align: justify; white-space: pre-line;">{!! e($event->deskripsi) !!}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if($event->venue && $event->venue->fasilitas)
+                    <div class="row g-4 mt-1">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm rounded-3 p-4">
+                                <h6 class="fw-bold text-uppercase text-muted mb-3" style="font-size: 0.75rem; letter-spacing: 1px;">Fasilitas Venue</h6>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach(explode(',', $event->venue->fasilitas) as $fac)
+                                        <span class="badge bg-light text-dark border rounded px-3 py-2 small fw-normal">
+                                            <i class="fa-solid fa-circle-check text-success me-1.5"></i>{{ trim($fac) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                </div>
+
+                <div class="modal-footer border-0 bg-white p-3">
+                    <a href="{{ route('events.edit', $event->id) }}" class="btn btn-outline-primary fw-bold px-4 rounded-3 btn-sm">
+                        <i class="fa-regular fa-pen-to-square me-1.5"></i> Edit Event
+                    </a>
+                    <button type="button" class="btn btn-secondary fw-bold px-4 rounded-3 btn-sm" data-bs-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" style="max-width: 400px;">
