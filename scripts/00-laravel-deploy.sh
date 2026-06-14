@@ -5,7 +5,11 @@ set -e
 
 echo "Starting post-deployment tasks..."
 
-if [ "$DB_FRESH_SEED" = "true" ]; then
+if [ "$DB_PERFORMANCE_SEED" = "true" ]; then
+    echo "DB_PERFORMANCE_SEED is set to true. Running fresh migrations and performance seeding..."
+    php artisan migrate:fresh --force
+    php artisan db:seed --class=PerformanceTestSeeder --force
+elif [ "$DB_FRESH_SEED" = "true" ]; then
     echo "DB_FRESH_SEED is set to true. Running fresh migrations and seeding..."
     php artisan migrate:fresh --force
     php artisan db:seed --force
