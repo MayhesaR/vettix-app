@@ -14,10 +14,11 @@ class VenueController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nama_venue', 'like', '%' . $search . '%')
-                  ->orWhere('gedung', 'like', '%' . $search . '%')
-                  ->orWhere('fasilitas', 'like', '%' . $search . '%');
+            $likeOperator = (\DB::connection()->getDriverName() === 'pgsql') ? 'ilike' : 'like';
+            $query->where(function($q) use ($search, $likeOperator) {
+                $q->where('nama_venue', $likeOperator, '%' . $search . '%')
+                  ->orWhere('gedung', $likeOperator, '%' . $search . '%')
+                  ->orWhere('fasilitas', $likeOperator, '%' . $search . '%');
             });
         }
 
@@ -93,10 +94,11 @@ class VenueController extends Controller
 
         if ($request->has('search') && $request->search != '') {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('nama_venue', 'like', '%' . $search . '%')
-                  ->orWhere('gedung', 'like', '%' . $search . '%')
-                  ->orWhere('fasilitas', 'like', '%' . $search . '%');
+            $likeOperator = (\DB::connection()->getDriverName() === 'pgsql') ? 'ilike' : 'like';
+            $query->where(function($q) use ($search, $likeOperator) {
+                $q->where('nama_venue', $likeOperator, '%' . $search . '%')
+                  ->orWhere('gedung', $likeOperator, '%' . $search . '%')
+                  ->orWhere('fasilitas', $likeOperator, '%' . $search . '%');
             });
         }
 

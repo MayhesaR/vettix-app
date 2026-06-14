@@ -55,7 +55,7 @@ class VenueSearchTest extends TestCase
 
     public function test_venue_index_filters_by_name(): void
     {
-        $response = $this->actingAs($this->admin)->get('/venues?search=Auditorium');
+        $response = $this->actingAs($this->admin)->get('/venues?search=auditorium');
 
         $response->assertStatus(200);
         $response->assertSee('Auditorium Gd. K');
@@ -64,7 +64,7 @@ class VenueSearchTest extends TestCase
 
     public function test_venue_index_filters_by_building(): void
     {
-        $response = $this->actingAs($this->admin)->get('/venues?search=Damar');
+        $response = $this->actingAs($this->admin)->get('/venues?search=damar');
 
         $response->assertStatus(200);
         $response->assertDontSee('Auditorium Gd. K');
@@ -73,7 +73,7 @@ class VenueSearchTest extends TestCase
 
     public function test_venue_index_filters_by_facilities(): void
     {
-        $response = $this->actingAs($this->admin)->get('/venues?search=Projector');
+        $response = $this->actingAs($this->admin)->get('/venues?search=projector');
 
         $response->assertStatus(200);
         $response->assertDontSee('Auditorium Gd. K');

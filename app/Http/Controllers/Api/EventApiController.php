@@ -16,7 +16,8 @@ class EventApiController extends Controller
         $query = Event::with(['category', 'venue']);
 
         if ($request->has('search')) {
-            $query->where('nama_event', 'like', '%' . $request->search . '%');
+            $likeOperator = (\DB::connection()->getDriverName() === 'pgsql') ? 'ilike' : 'like';
+            $query->where('nama_event', $likeOperator, '%' . $request->search . '%');
         }
 
         if ($request->has('category_id')) {

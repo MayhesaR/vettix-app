@@ -45,7 +45,8 @@ class EventController extends Controller
     }
 
     if ($request->has('search') && $request->search != '') {
-        $query->where('nama_event', 'like', '%' . $request->search . '%');
+        $likeOperator = (\DB::connection()->getDriverName() === 'pgsql') ? 'ilike' : 'like';
+        $query->where('nama_event', $likeOperator, '%' . $request->search . '%');
     }
 
     $events = $query->paginate(5);
