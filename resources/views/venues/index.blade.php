@@ -109,13 +109,23 @@
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0">Inventori Ruangan</h5>
 
-            <div class="d-flex gap-2">
-                <input type="text" class="form-control form-control-sm"
-                       placeholder="Search rooms...">
-                <button class="btn btn-light btn-sm">
-                    <i class="fa-solid fa-filter"></i>
-                </button>
-            </div>
+            <form action="{{ route('venues.index') }}" method="GET" class="d-flex gap-2 align-items-center">
+                <div class="input-group input-group-sm" style="width: 200px;">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                    </span>
+                    <input type="text"
+                           name="search"
+                           class="form-control border-start-0 ps-0"
+                           placeholder="Search rooms..."
+                           value="{{ request('search') }}">
+                </div>
+                @if(request('search'))
+                    <a href="{{ route('venues.index') }}" class="btn btn-sm btn-outline-danger d-flex align-items-center justify-content-center" style="width: 31px; height: 31px;" title="Reset Filter">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                @endif
+            </form>
         </div>
 
         <div class="card-body p-0">
@@ -176,7 +186,7 @@
                 Showing {{ count($venues) }} rooms
             </small>
 
-            <a href="{{ route('venues.export.pdf') }}" class="btn btn-sm text-success fw-bold text-decoration-none">
+            <a href="{{ route('venues.export.pdf', ['search' => request('search')]) }}" class="btn btn-sm text-success fw-bold text-decoration-none">
                 <i class="fa-solid fa-file-arrow-down me-2"></i>
                 Cetak PDF
             </a>

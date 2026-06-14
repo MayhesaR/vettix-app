@@ -8,9 +8,20 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class VenueController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $venues = Venue::all();
+        $query = Venue::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_venue', 'like', '%' . $search . '%')
+                  ->orWhere('gedung', 'like', '%' . $search . '%')
+                  ->orWhere('fasilitas', 'like', '%' . $search . '%');
+            });
+        }
+
+        $venues = $query->get();
         return view('venues.index', compact('venues'));
     }
 
@@ -76,9 +87,20 @@ class VenueController extends Controller
         return redirect()->route('venues.index')->with('success', 'Ruangan berhasil dihapus!');
     }
 
-    public function exportPdf()
+    public function exportPdf(Request $request)
     {
-        $venues = Venue::all();
+        $query = Venue::query();
+
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nama_venue', 'like', '%' . $search . '%')
+                  ->orWhere('gedung', 'like', '%' . $search . '%')
+                  ->orWhere('fasilitas', 'like', '%' . $search . '%');
+            });
+        }
+
+        $venues = $query->get();
         $pdf = Pdf::loadView('venues.pdf_export', compact('venues'));
         return $pdf->download('Daftar_Venue_Kampus.pdf');
     }
