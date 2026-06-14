@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Venue;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class VenueController extends Controller
 {
@@ -73,5 +74,12 @@ class VenueController extends Controller
         $venue->delete();
 
         return redirect()->route('venues.index')->with('success', 'Ruangan berhasil dihapus!');
+    }
+
+    public function exportPdf()
+    {
+        $venues = Venue::all();
+        $pdf = Pdf::loadView('venues.pdf_export', compact('venues'));
+        return $pdf->download('Daftar_Venue_Kampus.pdf');
     }
 }

@@ -176,10 +176,10 @@
                 Showing {{ count($venues) }} rooms
             </small>
 
-            <button class="btn btn-sm text-success fw-bold">
+            <a href="{{ route('venues.export.pdf') }}" class="btn btn-sm text-success fw-bold text-decoration-none">
                 <i class="fa-solid fa-file-arrow-down me-2"></i>
                 Cetak PDF
-            </button>
+            </a>
         </div>
     </div>
 </div>

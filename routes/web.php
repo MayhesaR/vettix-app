@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
     
     Route::get('/events/export/pdf', [EventController::class, 'exportPdf'])->name('events.export.pdf');
     Route::resource('events', EventController::class);
+    Route::get('/venues/export/pdf', [VenueController::class, 'exportPdf'])->name('venues.export.pdf');
     Route::resource('venues', VenueController::class);
     
     Route::resource('participants', ParticipantController::class);
