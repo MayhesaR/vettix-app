@@ -13,6 +13,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->redirectGuestsTo(function ($request) {
+            session()->flash('error', 'Silakan login terlebih dahulu untuk mengakses halaman tersebut.');
+            return route('login');
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

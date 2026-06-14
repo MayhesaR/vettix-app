@@ -64,6 +64,14 @@
                 </div>
             @endif
 
+            <!-- Error message -->
+            @if (session('error'))
+                <div class="mb-4 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-800 text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-circle-exclamation text-rose-600 text-base"></i>
+                    <span>{{ session('error') }}</span>
+                </div>
+            @endif
+
             <!-- Global errors -->
             @if ($errors->any() && !$errors->has('email') && !$errors->has('password'))
                 <div class="mb-4 p-4 rounded-xl bg-rose-50 border border-rose-100 text-rose-800 text-sm flex items-center gap-3">
